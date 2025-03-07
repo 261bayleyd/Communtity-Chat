@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Chat</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvvgqsb4koduT2CJnItZbHdub86cqRSdE",
+            authDomain: "everyoneapp-98612.firebaseapp.com",
+            databaseURL: "https://everyoneapp-98612-default-rtdb.firebaseio.com",
+            projectId: "everyoneapp-98612",
+            storageBucket: "everyoneapp-98612.firebasestorage.app",
+            messagingSenderId: "729620538472",
+            appId: "1:729620538472:web:701f2d8d89f11d416247dd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const nameInput = document.getElementById("name");
+            const textInput = document.getElementById("text");
+            const sendButton = document.getElementById("send");
+            const messagesContainer = document.getElementById("messages");
+
+            sendButton.addEventListener("click", () => {
+                const name = nameInput.value.trim();
+                const text = textInput.value.trim();
+                if (name && text) {
+                    push(ref(db, "messages"), { name, text });
+                    textInput.value = "";
+                }
+            });
+
+            onValue(ref(db, "messages"), (snapshot) => {
+                const data = snapshot.val();
+                messagesContainer.innerHTML = "";
+                if (data) {
+                    Object.values(data).forEach(({ name, text }) => {
+                        const messageElement = document.createElement("div");
+                        messageElement.innerHTML = `<strong>${name}:</strong> ${text}`;
+                        messageElement.classList.add("message");
+                        messagesContainer.appendChild(messageElement);
+                    });
+                }
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+        }
+        .message {
+            background: #fff;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background: blue;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Community Chat</h1>
+    <input type="text" id="name" placeholder="Enter your name...">
+    <div class="chat-box" id="messages"></div>
+    <input type="text" id="text" placeholder="Type something...">
+    <button id="send">Send</button>
+</body>
+</html>
